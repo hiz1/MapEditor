@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>DECA3DD4-CC9D-4A1A-8A9E-0D0861101A66</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>DA8AD91D50DE956A51E3703C1601E0B4A57D5F64</key>
+		<string>https://github.com/hiz1/ofxFrame.git</string>
+	</dict>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>DA8AD91D50DE956A51E3703C1601E0B4A57D5F64</key>
+		<string>ofxFrame/</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/hiz1/ofxFrame.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>DA8AD91D50DE956A51E3703C1601E0B4A57D5F64</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>DA8AD91D50DE956A51E3703C1601E0B4A57D5F64</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxFrame</string>
+		</dict>
+	</array>
+</dict>
+</plist>
