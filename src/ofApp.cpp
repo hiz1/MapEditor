@@ -21,6 +21,9 @@ void ofApp::setup(){
   
   mapFrame = ofPtr<CanvasFrame>(new CanvasFrame(ofRectangle(128 , 32, ofGetWidth() - 128, ofGetHeight()-32), info));
   mapFrame->setResizeFlag(RESIZE_SIZE | RESIZE_X | RESIZE_Y );
+  
+  commandKey = false;
+  shiftKey   = false;
 }
 
 //--------------------------------------------------------------
@@ -40,12 +43,26 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+  if(key == OF_KEY_COMMAND) {
+    commandKey = true;
+  }
+  if(key == OF_KEY_SHIFT) {
+    shiftKey = true;
+  }
+  if(key == 'z' && commandKey) {
+    if(shiftKey) mapFrame->redo();
+    else mapFrame->undo();
+  }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+  if(key == OF_KEY_COMMAND) {
+    commandKey = false;
+  }
+  if(key == OF_KEY_SHIFT) {
+    shiftKey = false;
+  }
 }
 
 //--------------------------------------------------------------

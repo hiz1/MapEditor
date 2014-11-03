@@ -7,7 +7,7 @@
 
 // DONE:複数レイヤー対応
 // TODO:複数タイルの同時選択に対応
-// TODO:アンドゥ・リドゥ対応
+// DONE:アンドゥ・リドゥ対応
 
 class ofApp : public ofBaseApp{
 
@@ -34,4 +34,5 @@ class ofApp : public ofBaseApp{
   
   
   const ofImage *image;
+  bool  commandKey, shiftKey;
 };

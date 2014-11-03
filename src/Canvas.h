@@ -129,6 +129,8 @@ public:
     }
     
     preBrushedTileIdx = ofVec2f(-1,-1);
+    history.push_back(tiles);
+    dirty = false;
   }
   virtual void drawImpl() {
     ofDisableSmoothing();
@@ -137,6 +139,8 @@ public:
     ofRectangle displayArea = getDisplayArea();
     
     for(int l=0;l<3;l++) {
+      if(l == info->layer) ofSetColor(255,255,255,255);
+      else ofSetColor(255,255,255,122);
       for(int x=0;x<contentSize.x/info->tileSize.x;x++) {
         if(x < (displayArea.getLeft() / info->tileSize.x)-1 || (displayArea.getRight() / info->tileSize.x)+1 < x) continue;
         for(int y=0;y<contentSize.y/info->tileSize.y;y++) {
@@ -167,6 +171,7 @@ public:
   }
   void putTile(ofVec2f tileIdx, ofVec2f tile) {
     tiles[info->layer][tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x] = tile;
+    dirty = true;
   }
   void pickTile(ofVec2f tileIdx) {
     const ofVec2f &tile = tiles[info->layer][tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x];
@@ -193,6 +198,23 @@ public:
     preBrushedTileIdx = tileIdx;
   }
   
+  void undo() {
+    if(history.size() > 1) {
+      redoHistory.push_back(history.back());
+      history.pop_back();
+      tiles = history.back();
+    }
+  }
+  
+  void redo() {
+    if(redoHistory.size() > 0) {
+      history.push_back(redoHistory.back());
+      tiles = redoHistory.back();
+      redoHistory.pop_back();
+      
+    }
+  }
+  
   virtual void mouseMovedImpl(int x, int y) {
     hoveredTile = ofVec2f((int)(x / info->tileSize.x), (int)(y / info->tileSize.y));
   }
@@ -214,11 +236,24 @@ public:
   virtual void mouseScrolledImpl(int mx, int my, int sx, int sy) {
     hoveredTile = ofVec2f((int)(mx / info->tileSize.x), (int)(my / info->tileSize.y));
   }
+  virtual void mouseReleasedImpl(int x, int y, int button) {
+    if(button == 0) {
+      if(dirty) {
+        if(history.size() > 128)history.erase(history.begin());
+        history.push_back(tiles);
+        redoHistory.clear();
+      }
+    }
+    dirty = false;
+  }
 private:
   CanvasInfo *info;
   vector<vector<ofVec2f> > tiles;
+  vector<vector<vector<ofVec2f> > > history;
+  vector<vector<vector<ofVec2f> > > redoHistory;
   ofVec2f hoveredTile;
   ofVec2f preBrushedTileIdx;
+  bool dirty;
 };
 
 
