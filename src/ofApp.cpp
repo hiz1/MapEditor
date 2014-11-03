@@ -2,21 +2,25 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+  ofSetFrameRate(60);
   ofBackground(0);
   
+  ofVec2f tileSize(16,16);
   
+  info = new CanvasInfo();
+  ofImage image;
+  image.loadImage("base.png");
+  info->image = image.getTextureReference();
+  info->tileSize = ofVec2f(16,16);
   
-  pickerFrame = ofPtr<PickerFrame>(new PickerFrame(ofRectangle(0  , 0, 128, ofGetHeight())));
+  pickerFrame = ofPtr<PickerFrame>(new PickerFrame(ofRectangle(0  , 0, 128, ofGetHeight()), info));
   pickerFrame->setResizeFlag(RESIZE_SIZE | RESIZE_Y);
-  pickerFrame->setImage("base.png", ofVec2f(16,16));
   
-  toolFrame  = ofPtr<ToolFrame>(new ToolFrame(ofRectangle(128, 0, ofGetWidth() - 128, 32)));
+  toolFrame  = ofPtr<ToolFrame>(new ToolFrame(ofRectangle(128, 0, ofGetWidth() - 128, 32), info));
   toolFrame->setResizeFlag(RESIZE_SIZE | RESIZE_X);
   
-  mapFrame = ofPtr<MapFrame>(new MapFrame(ofRectangle(128 , 32, ofGetWidth() - 128, ofGetHeight()-32)));
+  mapFrame = ofPtr<CanvasFrame>(new CanvasFrame(ofRectangle(128 , 32, ofGetWidth() - 128, ofGetHeight()-32), info));
   mapFrame->setResizeFlag(RESIZE_SIZE | RESIZE_X | RESIZE_Y );
-  mapFrame->setSelectedTilePtr(&pickerFrame->selectedTile);
-  mapFrame->setTileImage(&pickerFrame->image, pickerFrame->tileSize);
 }
 
 //--------------------------------------------------------------
@@ -31,6 +35,7 @@ void ofApp::draw(){
   pickerFrame->draw();
   toolFrame->draw();
   mapFrame->draw();
+
 }
 
 //--------------------------------------------------------------
