@@ -177,4 +177,54 @@ private:
   ofColor color;
 };
 
+class Segment : public ofxWidget {
+public:
+  Segment(const ofRectangle &rect, int segNum, int &ref) : ofxWidget(rect), segmentNum(segNum), ref(ref){
+    ref= 0;
+    hoveredIdx = -1;
+  }
+  virtual void drawImpl() {
+    int offset = 3;
+    
+    // base
+    ofSetColor(122);
+    ofFill();
+    ofRect(rect.x, rect.y+offset, rect.width, rect.height-offset);
+    
+    // hovered
+    if(hoveredIdx >= 0) {
+      ofSetColor(200);
+      ofFill();
+      ofRect(rect.x + hoveredIdx * (rect.width / segmentNum), rect.y, rect.width / segmentNum, rect.height-offset);
+    }
+    
+    // active
+    ofSetColor(255);
+    ofFill();
+    ofRect(rect.x + ref * (rect.width / segmentNum), rect.y, rect.width / segmentNum, rect.height-offset);
+  }
+  virtual void mouseMovedImpl(int x, int y, bool inside) {
+    if(inside) {
+      hoveredIdx = (int)(x / (rect.width / segmentNum));
+      hoveredIdx = ofClamp(hoveredIdx, 0, segmentNum-1);
+    } else {
+      hoveredIdx = -1;
+    }
+  }
+  virtual void mouseDraggedImpl(int x, int y, int button, bool inside) {
+  }
+  virtual void mousePressedImpl(int x, int y, int button, bool inside) {
+    if(!inside)return;
+    ref = (int)(x / (rect.width / segmentNum));
+    ref = ofClamp(ref, 0, segmentNum-1);
+  }
+  virtual void mouseReleasedImpl(int x, int y, int button, bool inside) {
+  }
+private:
+  int state;
+  int segmentNum;
+  int &ref;
+  int hoveredIdx;
+};
+
 #endif

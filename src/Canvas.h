@@ -27,8 +27,32 @@ struct CanvasInfo {
   ofVec2f tileSize;
   ofVec2f selectedTile;
   ofTexture image;
+  int       layer;
   BrushInfo brush;
 };
+
+class ToolFrame : public ofxFrame {
+public:
+  ToolFrame(const ofRectangle &rect, CanvasInfo *info) : ofxFrame(rect, ofVec2f(1000,32)) {
+    this->info = info;
+    font.loadFont("saxmono.ttf", 10);
+    
+    // layer
+    addWidget(ofPtr<Segment>(new Segment(ofRectangle(10,0,84,28), 3, info->layer)));
+    // brush
+    addWidget(ofPtr<Label>( new Label(ofRectangle(100,0,90,28), font, "size")));
+    addWidget(ofPtr<Slider>(new Slider(ofRectangle(150,0,90,28), 1,1,10, &info->brush.size, 1)));
+    addWidget(ofPtr<RefLabel<float> >(new RefLabel<float>(ofRectangle(250,0,40,28), font,info->brush.size)));
+    addWidget(ofPtr<Label>( new Label(ofRectangle(310,0,30,28), font, "amt")));
+    addWidget(ofPtr<Slider>(new Slider(ofRectangle(340,0,90,28), 1.0,0.01,1.0, &info->brush.amt, 0.01)));
+    addWidget(ofPtr<RefLabel<float> >(new RefLabel<float>(ofRectangle(440,0,40,28), font,info->brush.amt)));
+    
+  }
+private:
+  CanvasInfo *info;
+  ofTrueTypeFont font;
+};
+
 
 class PickerFrame : public ofxFrame {
 public:
@@ -94,11 +118,16 @@ class CanvasFrame : public ofxFrame {
 public:
   CanvasFrame(const ofRectangle &rect, CanvasInfo *info) : ofxFrame(rect, ofVec2f(1600,1600)) {
     this->info = info;
-    for(int x=0;x<contentSize.x/info->tileSize.x;x++) {
-      for(int y=0;y<contentSize.y/info->tileSize.y;y++) {
-        tiles.push_back(ofVec2f(-1,-1));
+    for(int layer = 0;layer < 3;layer ++) {
+      vector<ofVec2f> t;
+      for(int x=0;x<contentSize.x/info->tileSize.x;x++) {
+        for(int y=0;y<contentSize.y/info->tileSize.y;y++) {
+          t.push_back(ofVec2f(-1,-1));
+        }
       }
+      tiles.push_back(t);
     }
+    
     preBrushedTileIdx = ofVec2f(-1,-1);
   }
   virtual void drawImpl() {
@@ -107,15 +136,18 @@ public:
     // 表示範囲外は処理をスキップ
     ofRectangle displayArea = getDisplayArea();
     
-    for(int x=0;x<contentSize.x/info->tileSize.x;x++) {
-      if(x < (displayArea.getLeft() / info->tileSize.x)-1 || (displayArea.getRight() / info->tileSize.x)+1 < x) continue;
-      for(int y=0;y<contentSize.y/info->tileSize.y;y++) {
-        if(y < (displayArea.getTop() / info->tileSize.y)-1 || (displayArea.getBottom() / info->tileSize.y)+1 < y) continue;
-        ofVec2f tile = tiles[y*(contentSize.x/info->tileSize.x)+x];
-        if(tile.x < 0)continue;
-        info->image.drawSubsection(x*info->tileSize.x, y*info->tileSize.y, info->tileSize.x, info->tileSize.y, tile.x*info->tileSize.x, tile.y*info->tileSize.y);
+    for(int l=0;l<3;l++) {
+      for(int x=0;x<contentSize.x/info->tileSize.x;x++) {
+        if(x < (displayArea.getLeft() / info->tileSize.x)-1 || (displayArea.getRight() / info->tileSize.x)+1 < x) continue;
+        for(int y=0;y<contentSize.y/info->tileSize.y;y++) {
+          if(y < (displayArea.getTop() / info->tileSize.y)-1 || (displayArea.getBottom() / info->tileSize.y)+1 < y) continue;
+          ofVec2f tile = tiles[l][y*(contentSize.x/info->tileSize.x)+x];
+          if(tile.x < 0)continue;
+          info->image.drawSubsection(x*info->tileSize.x, y*info->tileSize.y, info->tileSize.x, info->tileSize.y, tile.x*info->tileSize.x, tile.y*info->tileSize.y);
+        }
       }
     }
+    
     // hovered tile
     ofSetColor(0);
     ofSetLineWidth(4);
@@ -134,10 +166,10 @@ public:
     return ofVec2f(tx, ty);
   }
   void putTile(ofVec2f tileIdx, ofVec2f tile) {
-    tiles[tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x] = tile;
+    tiles[info->layer][tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x] = tile;
   }
   void pickTile(ofVec2f tileIdx) {
-    const ofVec2f &tile = tiles[tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x];
+    const ofVec2f &tile = tiles[info->layer][tileIdx.y*(contentSize.x/info->tileSize.x)+tileIdx.x];
     if(tile.x < 0)return;
     info->selectedTile = tile;
   }
@@ -184,7 +216,7 @@ public:
   }
 private:
   CanvasInfo *info;
-  vector<ofVec2f> tiles;
+  vector<vector<ofVec2f> > tiles;
   ofVec2f hoveredTile;
   ofVec2f preBrushedTileIdx;
 };
