@@ -29,6 +29,7 @@ struct CanvasInfo {
   ofTexture image;
   int       layer;
   BrushInfo brush;
+  bool      erase;
 };
 
 class ToolFrame : public ofxFrame {
@@ -46,6 +47,8 @@ public:
     addWidget(ofPtr<Label>( new Label(ofRectangle(310,0,30,28), font, "amt")));
     addWidget(ofPtr<Slider>(new Slider(ofRectangle(340,0,90,28), 1.0,0.01,1.0, &info->brush.amt, 0.01)));
     addWidget(ofPtr<RefLabel<float> >(new RefLabel<float>(ofRectangle(440,0,40,28), font,info->brush.amt)));
+    // 消しゴム
+    addWidget(ofPtr<ToggleButton>(new ToggleButton(ofRectangle(500,0,28,28), info->erase, ofColor::cyan)));
     
   }
 private:
@@ -100,6 +103,7 @@ public:
     hoveredTile = ofVec2f((int)(x / info->tileSize.x), (int)(y / info->tileSize.y));
   }
   virtual void mouseDraggedImpl(int x, int y, int button) {
+    
   }
   virtual void mousePressedImpl(int x, int y, int button) {
     info->selectedTile = ofVec2f((int)(x / info->tileSize.x), (int)(y / info->tileSize.y));
@@ -153,7 +157,22 @@ public:
     }
     
     // hovered tile
-    ofSetColor(0);
+    
+    ofFill();
+    if(info->erase) {
+      ofSetColor(0,0,0,122);
+      ofRect(hoveredTile.x * info->tileSize.x, hoveredTile.y * info->tileSize.y,
+             info->tileSize.x * info->brush.size,info->tileSize.y * info->brush.size);
+    } else {
+      ofSetColor(255,255,255,122);
+      for(int x=0;x<info->brush.size;x++) {
+        for(int y=0;y<info->brush.size;y++) {
+          info->image.drawSubsection((hoveredTile.x + x) * info->tileSize.x, (hoveredTile.y + y) * info->tileSize.y, info->tileSize.x, info->tileSize.y,
+                                 info->selectedTile.x*info->tileSize.x, info->selectedTile.y*info->tileSize.y);
+        }
+      }
+    }
+    ofSetColor(255);
     ofSetLineWidth(4);
     ofNoFill();
     ofRect(hoveredTile.x * info->tileSize.x, hoveredTile.y * info->tileSize.y,
@@ -184,7 +203,7 @@ public:
       for(int x=rect.getLeft();x <= rect.getRight();x++) {
         if(x < 0 || x >= contentSize.x/info->tileSize.x)continue;
         if(ofRandom(1.0) <= amt) {
-          putTile(ofVec2f(x, y), info->selectedTile);
+          putTile(ofVec2f(x, y), tile);
         }
       }
     }
@@ -192,8 +211,10 @@ public:
   
   void brushTile(int x, int y) {
     ofVec2f tileIdx = getTileIdx(x, y);
+    ofVec2f brushTile = info->selectedTile;
+    if(info->erase)brushTile = ofVec2f(-1,-1);
     if(preBrushedTileIdx == tileIdx)return;
-    fillRectTile(ofRectangle(tileIdx, tileIdx + ofVec2f(info->brush.size-1,info->brush.size-1)), info->selectedTile, info->brush.amt);
+    fillRectTile(ofRectangle(tileIdx, tileIdx + ofVec2f(info->brush.size-1,info->brush.size-1)), brushTile, info->brush.amt);
     
     preBrushedTileIdx = tileIdx;
   }

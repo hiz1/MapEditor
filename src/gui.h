@@ -177,6 +177,65 @@ private:
   ofColor color;
 };
 
+class ToggleButton : public ofxWidget {
+public:
+  ToggleButton(const ofRectangle &rect, bool &ref, ofColor color=ofColor::white) : ofxWidget(rect), ref(ref) {
+    state = 0;
+    this->color = color;
+  }
+  
+  virtual void drawImpl() {
+    int offset = 5;
+    
+    // shadow
+    ofSetColor(122);
+    ofFill();
+    ofRect(rect.x, rect.y+offset, rect.width, rect.height - offset);
+    ofSetColor(color);
+    ofFill();
+    
+    // button
+    int delta = 0;
+    switch(state) {
+      case 0:
+        // normal
+        delta = 0;
+        break;
+      case 2:
+        // hovered
+        delta = 1;
+        break;
+    }
+    
+    if(ref) {
+      ofRect(rect.x, rect.y+offset-delta, rect.width , rect.height - offset);
+    } else {
+      ofRect(rect.x, rect.y+1-delta, rect.width, rect.height - offset);
+    }
+    
+  }
+  virtual void mouseMovedImpl(int x, int y, bool inside) {
+    if(inside)state = 2;
+    else state = 0;
+  }
+  virtual void mouseDraggedImpl(int x, int y, int button, bool inside) {
+    if(inside)state = 2;
+    else state = 0;
+  }
+  virtual void mousePressedImpl(int x, int y, int button, bool inside) {
+    if(!inside)return;
+    ref = !ref;
+  }
+  virtual void mouseReleasedImpl(int x, int y, int button, bool inside) {
+    if(inside)state = 2;
+    else state = 0;
+  }
+private:
+  int state;
+  bool &ref;
+  ofColor color;
+};
+
 class Segment : public ofxWidget {
 public:
   Segment(const ofRectangle &rect, int segNum, int &ref) : ofxWidget(rect), segmentNum(segNum), ref(ref){
